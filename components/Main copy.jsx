@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,40 +6,40 @@ import {
   Image,
   View,
   RefreshControl,
-  TouchableOpacity,
 } from "react-native";
 import { getLatestGames } from "../lib/metacritic";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ContentLoader, { Rect } from "react-content-loader/native";
-import { useNavigation } from "@react-navigation/native";
 
 export function Main() {
   const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true); // Estado para controlar el loading
+  const [refreshing, setRefreshing] = useState(false); // Estado para controlar el "refresh"
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
 
-  const fetchGames = async () => {
-    try {
-      setLoading(true);
-      const latestGames = await getLatestGames();
-      setGames(latestGames);
-    } catch (error) {
-      console.error("Error fetching games:", error);
-    } finally {
-      setLoading(false);
-    }
+  // Función para obtener los juegos más recientes
+  const fetchGames = () => {
+    setLoading(true); // Mostrar skeletons mientras se cargan los datos
+    getLatestGames().then((games) => {
+      setGames(games);
+      setLoading(false); // Desactivar skeletons cuando se carguen los datos
+    });
   };
 
+  // Ejecutar fetchGames al montar el componente
   useEffect(() => {
     fetchGames();
   }, []);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchGames();
-    setRefreshing(false);
+  // Función para manejar el refresh
+  const onRefresh = () => {
+    setRefreshing(true); // Activa el estado de refresh
+    setLoading(true); // Mostrar skeletons durante el refresh
+    getLatestGames().then((games) => {
+      setGames(games);
+      setRefreshing(false); // Desactiva el refresh una vez cargados los datos
+      setLoading(false); // Desactivar skeletons cuando se carguen los datos
+    });
   };
 
   const SkeletonCard = () => (
@@ -61,7 +61,6 @@ export function Main() {
   return (
     <View style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
       <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -73,11 +72,7 @@ export function Main() {
               </View>
             ))
           : games.map((game) => (
-              <TouchableOpacity
-                key={game.slug}
-                style={styles.card}
-                onPress={() => navigation.navigate('GameDetail', { game })}
-              >
+              <View key={game.slug} style={styles.card}>
                 <Image source={{ uri: game.image }} style={styles.image} />
                 <View style={styles.infoContainer}>
                   <View style={styles.scoreContainer}>
@@ -88,7 +83,7 @@ export function Main() {
                     {game.description}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </View>
             ))}
       </ScrollView>
     </View>
@@ -96,25 +91,20 @@ export function Main() {
 }
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    alignItems: "center",  // Center items horizontally
-    padding: 20,     // Space at the bottom
-    backgroundColor: "#0f172a",
-  },
   card: {
     marginBottom: 20,
     width: 375,
     backgroundColor: "#1e293b",
     borderRadius: 10,
     padding: 15,
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: "row", // Organiza en fila
+    alignItems: "flex-start", // Alinea los elementos al inicio
   },
   image: {
     width: 107,
     height: 147,
     borderRadius: 10,
-    marginRight: 15,
+    marginRight: 15, // Espacio entre la imagen y el texto
   },
   scoreContainer: {
     width: 40,
@@ -131,8 +121,8 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   infoContainer: {
-    flex: 1,
-    justifyContent: "flex-start",
+    flex: 1, // Usa el espacio restante
+    justifyContent: "flex-start", // Alinea el contenido al inicio
   },
   title: {
     fontSize: 20,
