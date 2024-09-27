@@ -1,5 +1,5 @@
 
-### Aquí está el `README.md` completo con la sección de instalación actualizada:
+
 
 ```markdown
 # Aplicación Similar a Metacritic
