@@ -35,6 +35,7 @@ Para ejecutar esta aplicación localmente, sigue estos pasos:
    2. cd metacritic
    3. npm install
    4. npx expo start
+   5. con la app de expo go lee el qr y visualiza la app en tu dispositivo fisico
 
 
 
